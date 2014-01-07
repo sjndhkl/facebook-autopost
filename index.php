@@ -1,82 +1,75 @@
-<?php
-/*
-Plugin Name: Facebook Auto Poster
-Author: Sujan Dhakal
-Plugin URL: http://sujandhakal.com.np/
-*/
-//type can be profile
-
-include_once 'autoload.php';
-$facebook_account = array('access_token'=>'CAAGXKDzYop4BAG4S7qAmi74dQ1ao0KmISvdsnQCSTgQGrQqiHTnSXhqZBR981ZACZC3sOZAbygIKUinoe0mjWsKVGsmwaYuVZBpPehRrpNwYiu9PRiKZBrnjHMgZBZBBZAGfKQNPx8ZCihMVzaghspHr3ZATjIbng8wSRoXAACldZAHvs7WutZB5ZACjH5',
-						  'app_id'=>'447674052027038',
-	                      'app_secret'=>'550232464d78c3673decaacc545b4640');
-
-$default_settings = array('post_types'=>array('post','page','any_type'),
-						  'things_to_post'=>array('title','url','excerpt'),
-						  'shorten_url'=>false);
+<?php 
+  @session_start();
+  if(isset($_SESSION['wpsujan']['fb_settings'])){
+    $fb_settings = $_SESSION['wpsujan']['fb_settings']; 
+  }else{
+    $fb_settings = false;
+  }
+  if(!is_array($fb_settings)){
+    header('Location: /');
+    exit;
+  }
+  include_once 'autoload.php';
 
 $fb_tokens = $_GET;
-
-if(isset($fb_tokens['code'])){
-	$code = $fb_tokens['code'];
-	$curlObj = new MicroblogPoster_Curl();
-	$url_for_getting_token = "https://graph.facebook.com/oauth/access_token?client_id=".$facebook_account['app_id']."&redirect_uri=http://wordpress.dev:88/content/plugins/facebook-autopost/&client_secret=".$facebook_account['app_secret']."&code=".$code;
-	//print $url_for_getting_token;
-	$result = $curlObj->fetch_url($url_for_getting_token);
-	preg_match_all('/access_token=(.*)&/', $result,$segments);
-	print "Access Token : <br/><textarea rows=\"10\" cols=\"100\">".$segments[1][0]."</textarea>";
-
-
+$token = '';
+if(isset($fb_tokens['code'])){ 
+    $code = $fb_tokens['code'];
+    $curlObj = new MicroblogPoster_Curl();
+    $url_for_getting_token = "https://graph.facebook.com/oauth/access_token?client_id=".$fb_settings['app_id']."&redirect_uri=http://wordpress.dev:88/content/plugins/facebook-autopost/&client_secret=".$fb_settings['app_secret']."&code=".$code;
+    $result = $curlObj->fetch_url($url_for_getting_token);
+    preg_match_all('/access_token=(.*)&/', $result,$segments);
+    if(isset($segments[1][0]) && !empty($segments[1][0]) )
+    { 
+      $token = $segments[1][0];
+      $_SESSION['wpsujan']['token'] = $token;
+    }
 }
-else{
+?>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Facebook Autoposter Access Token Generator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
 
 
-$url_to_authorize_app ="https://www.facebook.com/dialog/oauth?client_id=".$facebook_account['app_id']."&redirect_uri=".plugins_url('facebook-autopost')."/&scope=manage_pages,publish_stream";
 
-//print '<a href="'.$url_to_authorize_app.'">Authorize</a>';
-//print $url_to_request_code;
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    
+    <div class="container">
 
-//$access_token = "AQAykLWekb0A8exHSms3HIBDLTMpGz3jajj9ZYKrUzXLUZYe2W67fHXGcYxr1BBxmvBjgPgfFRMYxgSW-NlAhfLTeFOyeEQX8i-1pk55HRuLTOJnqtAnRzTpvzzXozi41I3DKW4gIlMbI1LV4nGmWtMbY21beOLHxbS2LViHufz3DaO4WgSVX64Lh91ZtoxiYfBQ4Jr6RGxiJ2mAaphtEf-U_k0t3U350OAa2dbLHTXub9xZnEn6Sc9u1bwDbzmvqNQoZISZ9ElxYRLpBgP64gmY65gNAF-44MQYRKVGzYrufdxYOKYpQnwf1Qd7ocdRkOg";
-//access_token=CAAGXKDzYop4BAHVetJ0c3D0TGlZCCi9Apqgm3iioa3BFPEC9fOfVr8HquhwCSOEELcfyqe0QJQKAj9xv8Wzm8GUGZAAZCIzZCkqP050lFYprhuXejdaHlTNEuFL2LZCRk6wLB9KljnKujZAzyxkUkWVzDQuFdUw0gxKzXROGIYcNaR5XvHAFvQ&expires=5183807
-/*
-{
-   "data": [
-      {
-         "category": "Attractions/things to do",
-         "name": "Mulpani",
-         "access_token": "CAAGXKDzYop4BAGOwTltx7Y4ayhS6TGhYtC5ExDcwdf17LLH6dsaSKRxyV2srKkgd0FAF9lZBhzbDuo0IZAOY4E1Xk3ft4I1JiJTDSQYwx5eA1ZBHtmoiit8nz3L6Vfipr2tEZAdxsDToAKMcFgTWJj1EwTBWjNbnlFvIemrGKZCUkcZCYB6429",
-         "perms": [
-            "ADMINISTER",
-            "EDIT_PROFILE",
-            "CREATE_CONTENT",
-            "MODERATE_CONTENT",
-            "CREATE_ADS",
-            "BASIC_ADMIN"
-         ],
-         "id": "10150114912100501"
-      }
-   ],
-   "paging": {
-      "next": "https://graph.facebook.com/767888675/accounts?access_token=CAAGXKDzYop4BAHVetJ0c3D0TGlZCCi9Apqgm3iioa3BFPEC9fOfVr8HquhwCSOEELcfyqe0QJQKAj9xv8Wzm8GUGZAAZCIzZCkqP050lFYprhuXejdaHlTNEuFL2LZCRk6wLB9KljnKujZAzyxkUkWVzDQuFdUw0gxKzXROGIYcNaR5XvHAFvQ&limit=5000&offset=5000&__after_id=10150114912100501"
-   }
-}
+      <div class="col-md-12">
+          <h1>Facebook Access Token</h1>
+          <form class="form-horizontal" role="form">
+  <div class="form-group">
+    <div class="col-lg-12">
+      <textarea class="form-control" id="facebook_access_token" rows="5"><?php echo $token; ?></textarea> 
+    </div>
+  </div>
+</form>
+<?php if(!empty($token)): ?>
+  <a class="btn btn-primary" href="<?php echo $fb_settings['redirect_uri']; ?>">Use this Token</a>
+<?php endif; ?>
+      </div>
 
-*/
-//hook in to the before post save and try to post to the facebook profile/ Page;
-$fbPoster = new Core_FacebookPoster($facebook_account);
+    </div>
 
-add_action('publish_post',function($id){
-	global $fbPoster;
-	$post = get_post($id);
-	$data = array( "message" => mb_substr($post->post_content, 0,100)."...",
-		  "link" => get_permalink($id),
-//		  "picture" => "http://i.imgur.com/lHkOsiH.png",
-		  //"name" => $post->post_title,
-		  "caption" => $post->post_title,
-		  //"description" => "wordpress.dev"
-		  );
-
-	$fbPoster->postToFacebook($data);
-});
-
-}
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+  </body>
+</html>
