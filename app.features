@@ -1,5 +1,7 @@
 1. Auto post the Post into Facebook Page -> done
 1.1 Create Settings Page -> done
 1.2 Automate the process of saving the Access token -> done
+1.3 Display What can be edited?
+1.4 Add method to Edit APP Id
 2. Have settings to Choose what to post (title, link, contents-excerpt)
 3. Have Settings to Shorten the link using goog.gl service

@@ -12,14 +12,41 @@ class Core_Settings{
 	}
 
 	function addMenuPage(){
-		add_options_page('Autoposter Settings','Autoposter Settings','manage_options','wpsujan-facebook-autoposter-settings',array($this,'displaySettingsPage'));
+		add_options_page('FB Autoposter','FB Autoposter','manage_options','wpsujan-facebook-autoposter-settings',array($this,'displaySettingsPage'));
 	}
 
 	function displaySettingsPage(){
 ?>
 	<div class="wrap">
 			<?php screen_icon(); ?>
-			<h2>FB Autoposter Settings</h2>
+			<script type="text/javascript">
+			function updateFields(a,s,t,r){
+				var appId = a || '';
+				var secretId = s || '';
+				var token = t || '';
+				var readonly = r || false;
+				jQuery('#wpsujan_facebook_appid').val(appId).attr("readonly",readonly);
+				jQuery('#wpsujan_facebook_appsecret').val(secretId).attr("readonly",readonly);
+				jQuery('#wpsujan_facebook_appaccesstoken').text(token);
+			}
+			jQuery(function(){
+					var appId = '',secretId = '',token = '';
+					jQuery('.edit_fbappid').toggle(function(){
+						appId = jQuery('#wpsujan_facebook_appid').val();
+						secretId = jQuery('#wpsujan_facebook_appsecret').val();
+						token  = jQuery('#wpsujan_facebook_appaccesstoken').text();
+						updateFields();
+						jQuery('#wpsujan_facebook_appid').focus();
+					    jQuery(this).text('Cancel');
+						return false;
+					},function(){
+						jQuery(this).text('Edit App Id');
+						updateFields(appId,secretId,token,true);
+					});
+
+			});
+			</script>
+			<h2>FB Autoposter Settings <a href="#" class="edit_fbappid button button-primary">Edit App Id</a></h2>
 			<form method="post" action="options.php">
 				<?php settings_fields('wpsujan_fbap_options'); ?>
 				<?php do_settings_sections(__FILE__); ?>
@@ -54,19 +81,35 @@ class Core_Settings{
 	/*
 	* Inputs
 	*/
+	private function ifReadonly($name){
+		if(!empty($this->settings_from_wp[$name])){
+			$readonly = ' readonly="true"';
+		}else{
+			$readonly = '';
+		}
+		return $readonly;
+	}
+	private function textInput($name,$description){
+
+		echo '<input name="wpsujan_fbap_options['.$name.']" type="text" id="'.$name.'" value="'.$this->settings_from_wp[$name].'" class="regular-text"'.$this->ifReadonly($name).' />
+		<p class="description">'.$description.'</p>';
+	}
+	private function textArea($name,$description,$cols=40,$rows=10){
+echo '<textarea rows="'.$rows.'" cols="'.$cols.'" name="wpsujan_fbap_options['.$name.']" id="'.$name.'" class="regular-text"'.$this->ifReadonly($name).'>'.$this->settings_from_wp[$name].'</textarea>
+		<p class="description">'.$description.'</p>';
+
+	}
+
 	public function fbAppIdInput(){
-		echo '<input name="wpsujan_fbap_options[wpsujan_facebook_appid]" type="text" id="wpsujan_facebook_appid" value="'.$this->settings_from_wp['wpsujan_facebook_appid'].'" class="regular-text" />
-		<p class="description">Get the App Id and Paste in here.</p>';
+		$this->textInput('wpsujan_facebook_appid','Get the App Id and Paste in here.');
 	}
 
 	public function fbAppSecretInput(){
-		echo '<input name="wpsujan_fbap_options[wpsujan_facebook_appsecret]" type="text" id="wpsujan_facebook_appsecret" value="'.$this->settings_from_wp['wpsujan_facebook_appsecret'].'" class="regular-text" />
-		<p class="description">Get the App Secret and Paste in here.</p>';
+		$this->textInput('wpsujan_facebook_appsecret','Get the App Secret and Paste in here.');
 	}
 
 	public function fbAppAccessTokenInput(){
-		echo '<textarea rows="10" cols="40" name="wpsujan_fbap_options[wpsujan_facebook_appaccesstoken]" id="wpsujan_facebook_appaccesstoken" class="regular-text">'.$this->settings_from_wp['wpsujan_facebook_appaccesstoken'].'</textarea>
-		<p class="description">Authorize The app ID and Secret and get the Access token and Paste in here.</p>';
+		$this->textArea('wpsujan_facebook_appaccesstoken','Authorize The app ID and Secret and get the Access token.',40,7);
 	}
 
 }

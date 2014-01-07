@@ -1,7 +1,7 @@
 <?php
 
 spl_autoload_register('autoloadClass');
-
+include_once 'functions.php';
 function autoloadClass($class){
 
 	$namespaces=array('Core','MicroblogPoster');
