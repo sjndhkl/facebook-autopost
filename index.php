@@ -16,7 +16,7 @@ $token = '';
 if(isset($fb_tokens['code'])){ 
     $code = $fb_tokens['code'];
     $curlObj = new MicroblogPoster_Curl();
-    $url_for_getting_token = "https://graph.facebook.com/oauth/access_token?client_id=".$fb_settings['app_id']."&redirect_uri=http://wordpress.dev:88/content/plugins/facebook-autopost/&client_secret=".$fb_settings['app_secret']."&code=".$code;
+    $url_for_getting_token = "https://graph.facebook.com/oauth/access_token?client_id=".$fb_settings['app_id']."&redirect_uri=".$fb_settings['plugin_url']."/&client_secret=".$fb_settings['app_secret']."&code=".$code;
     $result = $curlObj->fetch_url($url_for_getting_token);
     preg_match_all('/access_token=(.*)&/', $result,$segments);
     if(isset($segments[1][0]) && !empty($segments[1][0]) )
@@ -61,7 +61,7 @@ if(isset($fb_tokens['code'])){
   </div>
 </form>
 <?php if(!empty($token)): ?>
-  <a class="btn btn-primary" href="<?php echo $fb_settings['redirect_uri']; ?>">Use this Token</a>
+  <a class="btn btn-primary" href="<?php echo $fb_settings['redirect_url']; ?>">Use this Token</a>
 <?php endif; ?>
       </div>
 

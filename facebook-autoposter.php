@@ -19,7 +19,7 @@ $default_settings = array('post_types'=>array('post','page','any_type'),
 						  'things_to_post'=>array('title','url','excerpt'),
 						  'shorten_url'=>false);
 
-$_SESSION['wpsujan']['fb_settings'] = array_merge($facebook_account,array('redirect_uri'=>admin_url().'options-general.php?page=wpsujan-facebook-autoposter-settings'));
+$_SESSION['wpsujan']['fb_settings'] = array_merge($facebook_account,array('redirect_url'=>admin_url().'options-general.php?page=wpsujan-facebook-autoposter-settings','plugin_url'=>plugins_url('facebook-autopost')));
 
 
 /*** WP Hooks */
