@@ -69,6 +69,8 @@ class Core_Settings{
 		add_settings_field('wpsujan_facebook_appid','Facebook App ID: ',array($this,'fbAppIdInput'),__FILE__,'wpsujan_fbap_section');
 		add_settings_field('wpsujan_facebook_appsecret','Facebook App Secret: ',array($this,'fbAppSecretInput'),__FILE__,'wpsujan_fbap_section');
 		add_settings_field('wpsujan_facebook_appaccesstoken','Access Token: ',array($this,'fbAppAccessTokenInput'),__FILE__,'wpsujan_fbap_section');
+		add_settings_field('wpsujan_facebook_username','Facebook Username/ID: ',array($this,'fbUsernameInput'),__FILE__,'wpsujan_fbap_section');
+		
 	}
 
 	/*
@@ -100,6 +102,10 @@ echo '<textarea rows="'.$rows.'" cols="'.$cols.'" name="wpsujan_fbap_options['.$
 
 	}
 
+	public function fbUsernameInput(){
+		$this->textInput('wpsujan_facebook_username','Write your User id here.');
+	}
+	
 	public function fbAppIdInput(){
 		$this->textInput('wpsujan_facebook_appid','Get the App Id and Paste in here.');
 	}

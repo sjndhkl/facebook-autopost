@@ -3,7 +3,8 @@
 function get_settings_for_fbautoposter(){
 	$defaults = array('wpsujan_facebook_appid'=>'',
 				  'wpsujan_facebook_appsecret'=>'',
-				  'wpsujan_facebook_appaccesstoken'=>'');
+				  'wpsujan_facebook_appaccesstoken'=>'',
+				  'wpsujan_facebook_username'=>'');
 	$settings_from_wp = try_update_token_from_session(get_option('wpsujan_fbap_options'));
 
 	if(is_array($settings_from_wp)){

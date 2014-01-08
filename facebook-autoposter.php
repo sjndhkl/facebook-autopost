@@ -13,7 +13,8 @@ $settings_from_wp = get_settings_for_fbautoposter();
 
 $facebook_account = array('access_token'=>$settings_from_wp['wpsujan_facebook_appaccesstoken'],
 						  'app_id'=>$settings_from_wp['wpsujan_facebook_appid'],
-	                      'app_secret'=>$settings_from_wp['wpsujan_facebook_appsecret']);
+	                      'app_secret'=>$settings_from_wp['wpsujan_facebook_appsecret'],
+						 'facebook_id'=>$settings_from_wp['wpsujan_facebook_username']);
 
 $default_settings = array('post_types'=>array('post','page','any_type'),
 						  'things_to_post'=>array('title','url','excerpt'),
@@ -32,7 +33,7 @@ add_action('admin_menu',function(){
 	global $settingsObject;
 	$settingsObject->addMenuPage();
 });
-if(!empty($facebook_account['access_token']) && !empty($facebook_account['app_id']) && !empty($facebook_account['app_secret']) ){
+if(!empty($facebook_account['access_token']) && !empty($facebook_account['app_id']) && !empty($facebook_account['app_secret']) && !empty($facebook_account['facebook_id']) ){
 		//hook in to the before post save and try to post to the facebook profile/ Page;
 		$fbPoster = new Core_FacebookPoster($facebook_account);
 		add_action('publish_post',function($id){
@@ -49,8 +50,13 @@ if(!empty($facebook_account['access_token']) && !empty($facebook_account['app_id
 		});
 }else{
 	//print "";
-	add_action('admin_notices', function(){
-		$html = '<div id="message" class="error"><p><strong>Facebook Autoposter</strong> Plugin Temporarily Disabled void of access token, Go to <a href="options-general.php?page=wpsujan-facebook-autoposter-settings">Settings Page</a> to fix this.</p></div>';
+	$html ='';
+	if(empty($facebook_account['facebook_id'])){
+			$html = '<div id="message" class="error"><p><strong>Facebook Autoposter</strong> Plugin Temporarily Disabled void of Facebook Username/ID, Go to <a href="options-general.php?page=wpsujan-facebook-autoposter-settings">Settings Page</a> to fix this.</p></div>';
+	}else{
+			$html = '<div id="message" class="error"><p><strong>Facebook Autoposter</strong> Plugin Temporarily Disabled void of access token, Go to <a href="options-general.php?page=wpsujan-facebook-autoposter-settings">Settings Page</a> to fix this.</p></div>';
+	}
+	add_action('admin_notices', function() use ($html){
 		echo $html;
 	});
 }
