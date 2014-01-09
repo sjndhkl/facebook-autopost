@@ -3,5 +3,5 @@
 1.2 Automate the process of saving the Access token -> done
 1.3 Add method to Edit APP Id -> done
 1.4 Added option to select Page to Post -> done
-2. Have settings to Choose what to post (title, link, contents-excerpt)
+2. Have settings to Choose what to post (title, link, contents-excerpt) -> not needed
 3. Have Settings to Shorten the link using goog.gl service -> abandoned :)
