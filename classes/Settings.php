@@ -63,7 +63,7 @@ class Core_Settings{
 					if(currentSelection=='page'){
 						//ajax it
 						jQuery.post('<?php echo plugins_url('facebook-autopost'); ?>/index.php',{'t':'<?php echo $this->settings_from_wp['wpsujan_facebook_appaccesstoken'] ?>'},function(response){
-							selectInput.parent().append('&nbsp;<select style="width:200px" name="page-selections" id="page-selections"></select>');
+							selectInput.parent().append('&nbsp;<select style="width:270px" name="page-selections" id="page-selections"></select>');
 							jQuery("#page-selections").append(response.optionsText).trigger('change');
 						})
 					}else{
@@ -81,18 +81,18 @@ class Core_Settings{
 				});
 		});
 		</script>
-			<h2>FB Autoposter Settings<?php echo $editButton; ?></h2>
+			<h2>FB Autoposter Settings<?php echo $editButton; ?>
+			<?php //if we have both options echo the button to Authorize
+					if(  !empty($this->settings_from_wp['wpsujan_facebook_appid']) && !empty( $this->settings_from_wp['wpsujan_facebook_appsecret'] )  && empty( $this->settings_from_wp['wpsujan_facebook_appaccesstoken'] ) ){
+						$url_to_authorize_app ="https://www.facebook.com/dialog/oauth?client_id=".$this->settings_from_wp['wpsujan_facebook_appid']."&redirect_uri=".plugins_url('facebook-autopost')."/&scope=manage_pages,publish_stream";
+						echo '&nbsp;<a href="'.$url_to_authorize_app.'" class="button button-primary">Authorize Autoposter</a>';
+					}
+				 ?></h2>
 			<form method="post" action="options.php">
 				<?php settings_fields('wpsujan_fbap_options'); ?>
 				<?php do_settings_sections(__FILE__); ?>
 				<p class="submit">
-				<?php //if we have both options echo the button to Authorize
-					if(  !empty($this->settings_from_wp['wpsujan_facebook_appid']) && !empty( $this->settings_from_wp['wpsujan_facebook_appsecret'] )  && empty( $this->settings_from_wp['wpsujan_facebook_appaccesstoken'] ) ){
-						$url_to_authorize_app ="https://www.facebook.com/dialog/oauth?client_id=".$this->settings_from_wp['wpsujan_facebook_appid']."&redirect_uri=".plugins_url('facebook-autopost')."/&scope=manage_pages,publish_stream";
-						echo '<a href="'.$url_to_authorize_app.'" class="button button-primary">Authorize Autoposter</a>';
-					}
-				 ?>
-				<input type="submit" class="button button-secondary" value="Save Changes" /></p>
+				<input type="submit" class="button button-primary" value="Save Changes" /></p>
 			</form>
 	</div>
 <?php
@@ -104,8 +104,7 @@ class Core_Settings{
 		add_settings_field('wpsujan_facebook_appid','Facebook App ID: ',array($this,'fbAppIdInput'),__FILE__,'wpsujan_fbap_section');
 		add_settings_field('wpsujan_facebook_appsecret','Facebook App Secret: ',array($this,'fbAppSecretInput'),__FILE__,'wpsujan_fbap_section');
 		add_settings_field('wpsujan_facebook_appaccesstoken','Access Token: ',array($this,'fbAppAccessTokenInput'),__FILE__,'wpsujan_fbap_section');	
-		add_settings_field('wpsujan_facebook_pagetopost','Autopost In: ',array($this,'fbAppPageToPostInput'),__FILE__,'wpsujan_fbap_section');	
-		
+		add_settings_field('wpsujan_facebook_pagetopost','Autopost In: ',array($this,'fbAppPageToPostInput'),__FILE__,'wpsujan_fbap_section');		
 	}
 
 	/*
@@ -142,7 +141,7 @@ echo '<textarea rows="'.$rows.'" cols="'.$cols.'" name="wpsujan_fbap_options['.$
 
 	}
 
-	private function choiceInput($name,$default_value='',$description=''){
+	private function choiceInputForPageToPost($name,$default_value='',$description=''){
 		$options = array('page'=>'Page','profile'=>'Profile');
 		if(!empty($this->settings_from_wp[$name])){
 			$default_value = $this->settings_from_wp[$name];
@@ -172,10 +171,11 @@ echo '<textarea rows="'.$rows.'" cols="'.$cols.'" name="wpsujan_fbap_options['.$
 			$profile_selection_text = '';
 
 		}
-		$this->choiceInput('wpsujan_facebook_profileselection',$profile_selection,$profile_selection_text);
+		$this->choiceInputForPageToPost('wpsujan_facebook_profileselection',$profile_selection,$profile_selection_text);
 		$this->hiddenInput($name);
 		
 	}
+	
 	
 	public function fbAppProfileSelectionInput(){
 		$this->choiceInput('wpsujan_facebook_profileselection','profile');

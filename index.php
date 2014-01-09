@@ -1,4 +1,5 @@
 <?php 
+@session_start();
 include_once 'autoload.php';
 if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' ) {
     //request is ajax handle it and exit
@@ -20,7 +21,7 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
     echo json_encode(array('error'=>false,'optionsText'=>$optionsText) );
     exit;
 }
-@session_start();
+
 $fb_settings = get_fbsettings_from_session();
 $token = get_facebook_access_token($fb_settings);
 ?>

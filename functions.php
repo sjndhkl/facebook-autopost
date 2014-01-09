@@ -22,7 +22,8 @@ function get_facebook_access_token($fb_settings){
 		$curlObj = new MicroblogPoster_Curl();
 	    $url_for_getting_token = "https://graph.facebook.com/oauth/access_token?client_id=".$fb_settings['app_id']."&redirect_uri=".$fb_settings['plugin_url']."/&client_secret=".$fb_settings['app_secret']."&code=".$fb_tokens['code'];
 	    $result = $curlObj->fetch_url($url_for_getting_token);
-	    preg_match_all('/access_token=(.*)&/', $result,$segments);
+	    $result = explode('&', $result);
+	    preg_match_all('/access_token=(.*)/', $result[0],$segments);
 	    if(isset($segments[1][0]) && !empty($segments[1][0]) )
 	    { 
 	      $token = $segments[1][0];
@@ -37,7 +38,6 @@ function get_settings_for_fbautoposter(){
 	$defaults = array('wpsujan_facebook_appid'=>'',
 				  'wpsujan_facebook_appsecret'=>'',
 				  'wpsujan_facebook_appaccesstoken'=>'',
-				  'wpsujan_facebook_profileselection'=>'',
 				  'wpsujan_facebook_pagetopost'=>'');
 	$settings_from_wp = try_update_token_from_session(get_option('wpsujan_fbap_options'));
 

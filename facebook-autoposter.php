@@ -31,7 +31,6 @@ add_action('admin_menu',function() use ($settingsObject){
 });
 if(!empty($facebook_account['access_token']) && !empty($facebook_account['app_id']) && !empty($facebook_account['app_secret']) ){
 		//hook in to the before post save and try to post to the facebook profile/ Page;
-		
 		$pageToPost = $settings_from_wp['wpsujan_facebook_pagetopost'];
 		if(!empty($pageToPost)){
 			$segments = explode('|', $pageToPost);
@@ -51,7 +50,6 @@ if(!empty($facebook_account['access_token']) && !empty($facebook_account['app_id
 			$fbPoster->postToFacebook($data);
 		});
 }else{
-	//print "";
 	$html ='<div id="message" class="error"><p><strong>Facebook Autoposter</strong> Plugin Temporarily Disabled void of {causes}, Go to <a href="options-general.php?page=wpsujan-facebook-autoposter-settings">Settings Page</a> to authorize the Facebook AutoPoster and get the token.</p></div>';
 	$causes[] = 'access token';
 	$html = str_replace('{causes}', join(' and ',$causes), $html);
