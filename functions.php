@@ -2,6 +2,10 @@
 
 function post_to_facebook($id,$fbPoster){
 	$post = get_post($id);
+		/** little sanitization **/
+	$post->post_content = strip_tags(str_replace('&nbsp;',' ',$post->post_content));
+	$post->post_content = trim($post->post_content);
+	
 	$data = array( "message" => mb_substr($post->post_content, 0,150)."...",
 		  "link" => get_permalink($id),
 		  "caption" => $post->post_title,
