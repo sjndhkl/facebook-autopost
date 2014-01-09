@@ -62,7 +62,7 @@ function set_fbsettings_session($facebook_account){
 		/** Save FB settings to Session **/
 		$_SESSION['wpsujan']['fb_settings'] = array_merge($facebook_account,
 														  array('redirect_url'=>admin_url().'options-general.php?page=wpsujan-facebook-autoposter-settings',
-														  	    'plugin_url'=>plugins_url('facebook-autopost'))
+														  	    'plugin_url'=>plugins_url(WPSUJAN_PLUGIN_DIR))
 														 );
 	}
 }

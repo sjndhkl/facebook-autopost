@@ -64,7 +64,7 @@ class Core_Settings{
 					var currentSelection = selectInput.val();
 					if(currentSelection=='page'){
 						//ajax it
-						jQuery.post('<?php echo plugins_url('facebook-autopost'); ?>/index.php',{'t':'<?php echo $this->settings_from_wp['wpsujan_facebook_appaccesstoken'] ?>'},function(response){
+						jQuery.post('<?php echo plugins_url(WPSUJAN_PLUGIN_DIR); ?>/index.php',{'t':'<?php echo $this->settings_from_wp['wpsujan_facebook_appaccesstoken'] ?>'},function(response){
 							selectInput.parent().append('&nbsp;<select style="width:270px" name="page-selections" id="page-selections"></select>');
 							jQuery("#page-selections").append(response.optionsText).trigger('change');
 						})
@@ -93,7 +93,7 @@ class Core_Settings{
 			<h2>FB Autoposter Settings<?php echo $editButton; ?>
 			<?php //if we have both options echo the button to Authorize
 					if(  !empty($this->settings_from_wp['wpsujan_facebook_appid']) && !empty( $this->settings_from_wp['wpsujan_facebook_appsecret'] )  && empty( $this->settings_from_wp['wpsujan_facebook_appaccesstoken'] ) ){
-						$url_to_authorize_app ="https://www.facebook.com/dialog/oauth?client_id=".$this->settings_from_wp['wpsujan_facebook_appid']."&redirect_uri=".plugins_url('facebook-autopost')."/&scope=manage_pages,publish_stream";
+						$url_to_authorize_app ="https://www.facebook.com/dialog/oauth?client_id=".$this->settings_from_wp['wpsujan_facebook_appid']."&redirect_uri=".plugins_url(WPSUJAN_PLUGIN_DIR)."/&scope=manage_pages,publish_stream";
 						echo '&nbsp;<a href="'.$url_to_authorize_app.'" class="button button-primary">Authorize Autoposter</a>';
 					}
 				 ?></h2>
