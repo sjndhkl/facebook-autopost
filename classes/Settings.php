@@ -28,6 +28,8 @@ class Core_Settings{
     $editButton = '';
 ?>
 	<div class="wrap">
+		<script src="//cdnjs.cloudflare.com/ajax/libs/chosen/1.0/chosen.jquery.min.js" type="text/javascript"></script>
+		<link rel="stylesheet" href="http://harvesthq.github.io/chosen/chosen.css" />
 		<script type="text/javascript">
 			function updateFields(a,s,t,r){
 				var appId = a || '';
@@ -79,6 +81,13 @@ class Core_Settings{
 					jQuery("#wpsujan_facebook_pagetopost").val(jQuery(this).val());
 					return false;
 				});
+
+				jQuery("#posttypes_selection").on('change',function(){
+					jQuery("#wpsujan_facebook_posttypestoautopost").val(jQuery(this).val());
+					return false;
+				});
+
+				jQuery("#posttypes_selection").chosen();
 		});
 		</script>
 			<h2>FB Autoposter Settings<?php echo $editButton; ?>
@@ -104,7 +113,8 @@ class Core_Settings{
 		add_settings_field('wpsujan_facebook_appid','Facebook App ID: ',array($this,'fbAppIdInput'),__FILE__,'wpsujan_fbap_section');
 		add_settings_field('wpsujan_facebook_appsecret','Facebook App Secret: ',array($this,'fbAppSecretInput'),__FILE__,'wpsujan_fbap_section');
 		add_settings_field('wpsujan_facebook_appaccesstoken','Access Token: ',array($this,'fbAppAccessTokenInput'),__FILE__,'wpsujan_fbap_section');	
-		add_settings_field('wpsujan_facebook_pagetopost','Autopost In: ',array($this,'fbAppPageToPostInput'),__FILE__,'wpsujan_fbap_section');		
+		add_settings_field('wpsujan_facebook_pagetopost','Autopost In: ',array($this,'fbAppPageToPostInput'),__FILE__,'wpsujan_fbap_section');
+		add_settings_field('wpsujan_facebook_posttypestoautopost','Post Types to Autopost: ',array($this,'fbAppPostTypesToAutoPostInput'),__FILE__,'wpsujan_fbap_section');		
 	}
 
 	/*
@@ -127,7 +137,7 @@ class Core_Settings{
 		}
 		return $readonly;
 	}
-	private function textInput($name,$description,$check_readonly=true){
+	private function textInput($name,$description='',$check_readonly=true){
 
 		echo '<input name="wpsujan_fbap_options['.$name.']" type="text" id="'.$name.'" value="'.$this->settings_from_wp[$name].'" class="regular-text"'.$this->ifReadonly($name,$check_readonly).' />
 		<p class="description">'.$description.'</p>';
@@ -139,6 +149,27 @@ class Core_Settings{
 echo '<textarea rows="'.$rows.'" cols="'.$cols.'" name="wpsujan_fbap_options['.$name.']" id="'.$name.'" class="regular-text"'.$this->ifReadonly($name).'>'.$this->settings_from_wp[$name].'</textarea>
 		<p class="description">'.$description.'</p>';
 
+	}
+
+	private function choiceInputForPostTypesToPost($name){
+
+		$optionsToDisplay = '';
+		$selections = explode(',', $this->settings_from_wp[$name]);
+		$post_types = get_post_types(array('public'=>true),'objects');
+		foreach ($post_types as $post_type) {
+			if($post_type->name=='attachment'){
+				continue;
+			}
+			if(is_array($selections) && in_array($post_type->name, $selections)){
+				$selected = " selected='selected'";
+			}else{
+				$selected = "";
+			}
+			$optionsToDisplay .= "<option value='{$post_type->name}'$selected>".ucfirst($post_type->name)."</option>";
+		}
+		echo str_replace("{options}", $optionsToDisplay,'<select style="width:350px;" multiple="true" id="posttypes_selection" name="posttypes_selection">
+			{options}
+</select>');
 	}
 
 	private function choiceInputForPageToPost($name,$default_value='',$description=''){
@@ -182,6 +213,11 @@ echo '<textarea rows="'.$rows.'" cols="'.$cols.'" name="wpsujan_fbap_options['.$
 	}
 	public function fbAppPageToPostInput(){
 		$this->pageToPostInput('wpsujan_facebook_pagetopost');
+	}
+
+	public function fbAppPostTypesToAutoPostInput(){
+		$this->choiceInputForPostTypesToPost('wpsujan_facebook_posttypestoautopost');
+		$this->hiddenInput('wpsujan_facebook_posttypestoautopost');
 	}
 	public function fbAppIdInput(){
 		$this->textInput('wpsujan_facebook_appid','Get the App Id and Paste in here.');

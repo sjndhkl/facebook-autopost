@@ -1,5 +1,38 @@
 <?php
 
+function post_to_facebook($id,$fbPoster){
+	$post = get_post($id);
+			
+			$data = array( "message" => mb_substr($post->post_content, 0,150)."...",
+				  "link" => get_permalink($id),
+				  "caption" => $post->post_title,
+				  "description" => mb_substr($post->post_content, 0,300)."..."
+				  );
+			$image_url = wp_get_attachment_image_src( get_post_thumbnail_id($id), 'medium');
+			if($image_url){
+				$data = array_merge($data,array('picture'=>$image_url[0]));
+			}
+			$fbPoster->postToFacebook($data);
+}
+
+function getPagesJson($access_token){
+	$url = 'https://graph.facebook.com/me/accounts?access_token='.$access_token;
+    $optionsText  = '';
+    try{
+      $curlObj = new MicroblogPoster_Curl();
+      $result = $curlObj->fetch_url($url);
+      $result = json_decode($result);
+      $pages = $result->data;
+     
+      foreach ($pages as $page) {
+          $optionsText .="<option value='{$page->name}|{$page->id}|{$page->access_token}'>{$page->name} - {$page->category}</option>";
+      }
+    }catch(Exception $e){
+
+    }
+    echo json_encode(array('error'=>false,'optionsText'=>$optionsText) );
+}
+
 function set_fbsettings_session($facebook_account){
 	$access_token = $facebook_account['access_token'];
 	if(empty($access_token)){
@@ -49,7 +82,8 @@ function get_settings_for_fbautoposter(){
 	$defaults = array('wpsujan_facebook_appid'=>'',
 				  'wpsujan_facebook_appsecret'=>'',
 				  'wpsujan_facebook_appaccesstoken'=>'',
-				  'wpsujan_facebook_pagetopost'=>'');
+				  'wpsujan_facebook_pagetopost'=>'',
+				  'wpsujan_facebook_posttypestoautopost'=>'');
 	$settings_from_wp = try_update_token_from_session(get_option('wpsujan_fbap_options'));
 
 	if(is_array($settings_from_wp)){

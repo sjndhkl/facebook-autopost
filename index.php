@@ -1,24 +1,10 @@
 <?php 
 @session_start();
 include_once 'autoload.php';
+//request is ajax handle it and exit
 if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' ) {
-    //request is ajax handle it and exit
     header('Content-Type: application/json');
-      $url = 'https://graph.facebook.com/me/accounts?access_token='.$_POST['t'];
-      $optionsText  = '';
-      try{
-      $curlObj = new MicroblogPoster_Curl();
-      $result = $curlObj->fetch_url($url);
-      $result = json_decode($result);
-      $pages = $result->data;
-     
-      foreach ($pages as $page) {
-          $optionsText .="<option value='{$page->name}|{$page->id}|{$page->access_token}'>{$page->name} - {$page->category}</option>";
-      }
-    }catch(Exception $e){
-
-    }
-    echo json_encode(array('error'=>false,'optionsText'=>$optionsText) );
+    echo getPagesJson($_POST['t']);
     exit;
 }
 

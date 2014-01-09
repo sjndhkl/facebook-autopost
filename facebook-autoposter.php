@@ -32,19 +32,17 @@ if(!empty($facebook_account['access_token']) && !empty($facebook_account['app_id
 			$facebook_account['access_token'] = $segments[2];
 		}
 		$fbPoster = new Core_FacebookPoster($facebook_account);
-		add_action('publish_post',function($id) use ($fbPoster){
-			$post = get_post($id);
-			$data = array( "message" => mb_substr($post->post_content, 0,150)."...",
-				  "link" => get_permalink($id),
-				  "caption" => $post->post_title,
-				  "description" => mb_substr($post->post_content, 0,300)."..."
-				  );
-			$image_url = wp_get_attachment_image_src( get_post_thumbnail_id($id), 'medium');
-			if($image_url){
-				$data = array_merge($data,array('picture'=>$image_url[0]));
+
+		$whitelist_posttypes = explode(',', $settings_from_wp['wpsujan_facebook_posttypestoautopost']);
+
+		if( is_array($whitelist_posttypes) ){
+			foreach ($whitelist_posttypes as $type) {
+				add_action('publish_'.$type,function($id) use ($fbPoster){
+					post_to_facebook($id,$fbPoster);
+				});
 			}
-			$fbPoster->postToFacebook($data);
-		});
+		}
+		
 }else{
 	$html ='<div id="message" class="error"><p><strong>Facebook Autoposter</strong> Plugin Temporarily Disabled void of {causes}, Go to <a href="options-general.php?page=wpsujan-facebook-autoposter-settings">Settings Page</a> to authorize the Facebook AutoPoster and get the token.</p></div>';
 	$causes[] = 'access token';
