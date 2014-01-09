@@ -13,7 +13,6 @@ $settings_from_wp = get_settings_for_fbautoposter();
 $facebook_account = array('access_token'=>$settings_from_wp['wpsujan_facebook_appaccesstoken'],
 						  'app_id'=>$settings_from_wp['wpsujan_facebook_appid'],
 	                      'app_secret'=>$settings_from_wp['wpsujan_facebook_appsecret']);
-
 set_fbsettings_session($facebook_account);
 /*** WP Hooks */
 $settingsObject = new Core_Settings($settings_from_wp);

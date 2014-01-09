@@ -1,5 +1,5 @@
 <?php
-
+define("WPSUJAN_PLUGIN_DIR",basename(dirname(__FILE__)) );
 spl_autoload_register('autoloadClass');
 include_once 'functions.php';
 function autoloadClass($class){

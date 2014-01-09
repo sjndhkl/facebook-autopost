@@ -38,11 +38,12 @@ function getPagesJson($access_token){
 
 function set_fbsettings_session($facebook_account){
 	$access_token = $facebook_account['access_token'];
+	$plugin_dir = basename(dirname(__FILE__));
 	if(empty($access_token)){
 		/** Save FB settings to Session **/
 		$_SESSION['wpsujan']['fb_settings'] = array_merge($facebook_account,
 														  array('redirect_url'=>admin_url().'options-general.php?page=wpsujan-facebook-autoposter-settings',
-														  	    'plugin_url'=>plugins_url('facebook-autopost'))
+														  	    'plugin_url'=>plugins_url($plugin_dir))
 														 );
 	}
 }
