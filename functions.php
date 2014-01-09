@@ -2,17 +2,16 @@
 
 function post_to_facebook($id,$fbPoster){
 	$post = get_post($id);
-			
-			$data = array( "message" => mb_substr($post->post_content, 0,150)."...",
-				  "link" => get_permalink($id),
-				  "caption" => $post->post_title,
-				  "description" => mb_substr($post->post_content, 0,300)."..."
-				  );
-			$image_url = wp_get_attachment_image_src( get_post_thumbnail_id($id), 'medium');
-			if($image_url){
-				$data = array_merge($data,array('picture'=>$image_url[0]));
-			}
-			$fbPoster->postToFacebook($data);
+	$data = array( "message" => mb_substr($post->post_content, 0,150)."...",
+		  "link" => get_permalink($id),
+		  "caption" => $post->post_title,
+		  "description" => mb_substr($post->post_content, 0,300)."..."
+		  );
+	$image_url = wp_get_attachment_image_src( get_post_thumbnail_id($id), 'medium');
+	if($image_url){
+		$data = array_merge($data,array('picture'=>$image_url[0]));
+	}
+	$fbPoster->postToFacebook($data);
 }
 
 function getPagesJson($access_token){
