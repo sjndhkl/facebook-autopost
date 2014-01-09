@@ -18,7 +18,6 @@ class Core_Settings{
 	function displaySettingsPage(){
 ?>
 	<div class="wrap">
-			<?php screen_icon(); ?>
 			<script type="text/javascript">
 			function updateFields(a,s,t,r){
 				var appId = a || '';
@@ -46,7 +45,7 @@ class Core_Settings{
 
 			});
 			</script>
-			<h2>FB Autoposter Settings <a href="#" class="edit_fbappid button button-primary">Edit App Id</a></h2>
+			<h2>FB Autoposter Settings <a href="#" class="edit_fbappid button button-primary">Edit</a></h2>
 			<form method="post" action="options.php">
 				<?php settings_fields('wpsujan_fbap_options'); ?>
 				<?php do_settings_sections(__FILE__); ?>
@@ -83,7 +82,9 @@ class Core_Settings{
 	/*
 	* Inputs
 	*/
-	private function ifReadonly($name){
+	private function ifReadonly($name,$dont_bypass=true){
+		if(!$dont_bypass)
+			return;
 		if(!empty($this->settings_from_wp[$name])){
 			$readonly = ' readonly="true"';
 		}else{
@@ -91,9 +92,9 @@ class Core_Settings{
 		}
 		return $readonly;
 	}
-	private function textInput($name,$description){
+	private function textInput($name,$description,$check_readonly=true){
 
-		echo '<input name="wpsujan_fbap_options['.$name.']" type="text" id="'.$name.'" value="'.$this->settings_from_wp[$name].'" class="regular-text"'.$this->ifReadonly($name).' />
+		echo '<input name="wpsujan_fbap_options['.$name.']" type="text" id="'.$name.'" value="'.$this->settings_from_wp[$name].'" class="regular-text"'.$this->ifReadonly($name,$check_readonly).' />
 		<p class="description">'.$description.'</p>';
 	}
 	private function textArea($name,$description,$cols=40,$rows=10){
@@ -103,7 +104,7 @@ echo '<textarea rows="'.$rows.'" cols="'.$cols.'" name="wpsujan_fbap_options['.$
 	}
 
 	public function fbUsernameInput(){
-		$this->textInput('wpsujan_facebook_username','Write your User id here.');
+		$this->textInput('wpsujan_facebook_username','Write your User id here.',false);
 	}
 	
 	public function fbAppIdInput(){

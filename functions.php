@@ -1,5 +1,38 @@
 <?php
 
+function get_fbsettings_from_session(){
+  if(isset($_SESSION['wpsujan']['fb_settings'])){
+    $fb_settings = $_SESSION['wpsujan']['fb_settings']; 
+  }else{
+    $fb_settings = false;
+  }
+  if(!is_array($fb_settings)){
+    header('Location: /');
+    exit;
+  }
+  else{
+	  return $fb_settings;
+  }
+}
+
+function get_facebook_access_token($fb_settings){
+	$fb_tokens = $_GET;
+	$token = '';
+	if(isset($fb_tokens['code'])){ 
+		$curlObj = new MicroblogPoster_Curl();
+	    $url_for_getting_token = "https://graph.facebook.com/oauth/access_token?client_id=".$fb_settings['app_id']."&redirect_uri=".$fb_settings['plugin_url']."/&client_secret=".$fb_settings['app_secret']."&code=".$fb_tokens['code'];
+	    $result = $curlObj->fetch_url($url_for_getting_token);
+	    preg_match_all('/access_token=(.*)&/', $result,$segments);
+	    if(isset($segments[1][0]) && !empty($segments[1][0]) )
+	    { 
+	      $token = $segments[1][0];
+	      $_SESSION['wpsujan']['token'] = $token;
+	    }
+	}
+	return $token;
+
+}
+
 function get_settings_for_fbautoposter(){
 	$defaults = array('wpsujan_facebook_appid'=>'',
 				  'wpsujan_facebook_appsecret'=>'',

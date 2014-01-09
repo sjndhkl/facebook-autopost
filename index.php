@@ -1,30 +1,8 @@
 <?php 
-  @session_start();
-  if(isset($_SESSION['wpsujan']['fb_settings'])){
-    $fb_settings = $_SESSION['wpsujan']['fb_settings']; 
-  }else{
-    $fb_settings = false;
-  }
-  if(!is_array($fb_settings)){
-    header('Location: /');
-    exit;
-  }
-  include_once 'autoload.php';
-
-$fb_tokens = $_GET;
-$token = '';
-if(isset($fb_tokens['code'])){ 
-    $code = $fb_tokens['code'];
-    $curlObj = new MicroblogPoster_Curl();
-    $url_for_getting_token = "https://graph.facebook.com/oauth/access_token?client_id=".$fb_settings['app_id']."&redirect_uri=".$fb_settings['plugin_url']."/&client_secret=".$fb_settings['app_secret']."&code=".$code;
-    $result = $curlObj->fetch_url($url_for_getting_token);
-    preg_match_all('/access_token=(.*)&/', $result,$segments);
-    if(isset($segments[1][0]) && !empty($segments[1][0]) )
-    { 
-      $token = $segments[1][0];
-      $_SESSION['wpsujan']['token'] = $token;
-    }
-}
+@session_start();
+include_once 'autoload.php';
+$fb_settings = get_fbsettings_from_session();
+$token = get_facebook_access_token($fb_settings);
 ?>
 <!DOCTYPE html>
 <html>

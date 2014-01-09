@@ -25,12 +25,10 @@ $_SESSION['wpsujan']['fb_settings'] = array_merge($facebook_account,array('redir
 
 /*** WP Hooks */
 $settingsObject = new Core_Settings($settings_from_wp);
-add_action('admin_init',function(){
-	global $settingsObject;
+add_action('admin_init',function() use ($settingsObject){
 	$settingsObject->init();
 });
-add_action('admin_menu',function(){
-	global $settingsObject;
+add_action('admin_menu',function() use ($settingsObject){
 	$settingsObject->addMenuPage();
 });
 if(!empty($facebook_account['access_token']) && !empty($facebook_account['app_id']) && !empty($facebook_account['app_secret']) && !empty($facebook_account['facebook_id']) ){
@@ -50,12 +48,13 @@ if(!empty($facebook_account['access_token']) && !empty($facebook_account['app_id
 		});
 }else{
 	//print "";
-	$html ='';
+	$html ='<div id="message" class="error"><p><strong>Facebook Autoposter</strong> Plugin Temporarily Disabled void of {causes}, Go to <a href="options-general.php?page=wpsujan-facebook-autoposter-settings">Settings Page</a> to fix this.</p></div>';
+	$causes = array();
 	if(empty($facebook_account['facebook_id'])){
-			$html = '<div id="message" class="error"><p><strong>Facebook Autoposter</strong> Plugin Temporarily Disabled void of Facebook Username/ID, Go to <a href="options-general.php?page=wpsujan-facebook-autoposter-settings">Settings Page</a> to fix this.</p></div>';
-	}else{
-			$html = '<div id="message" class="error"><p><strong>Facebook Autoposter</strong> Plugin Temporarily Disabled void of access token, Go to <a href="options-general.php?page=wpsujan-facebook-autoposter-settings">Settings Page</a> to fix this.</p></div>';
+			$causes[] = 'Facebook Username/ID';
 	}
+	$causes[] = 'access token';
+	$html = str_replace('{causes}', join(' and ',$causes), $html);
 	add_action('admin_notices', function() use ($html){
 		echo $html;
 	});
