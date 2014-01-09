@@ -14,13 +14,7 @@ $facebook_account = array('access_token'=>$settings_from_wp['wpsujan_facebook_ap
 						  'app_id'=>$settings_from_wp['wpsujan_facebook_appid'],
 	                      'app_secret'=>$settings_from_wp['wpsujan_facebook_appsecret']);
 
-$default_settings = array('post_types'=>array('post','page','any_type'),
-						  'things_to_post'=>array('title','url','excerpt'),
-						  'shorten_url'=>false);
-
-$_SESSION['wpsujan']['fb_settings'] = array_merge($facebook_account,array('redirect_url'=>admin_url().'options-general.php?page=wpsujan-facebook-autoposter-settings','plugin_url'=>plugins_url('facebook-autopost')));
-
-
+set_fbsettings_session($facebook_account);
 /*** WP Hooks */
 $settingsObject = new Core_Settings($settings_from_wp);
 add_action('admin_init',function() use ($settingsObject){
@@ -42,11 +36,13 @@ if(!empty($facebook_account['access_token']) && !empty($facebook_account['app_id
 			$post = get_post($id);
 			$data = array( "message" => mb_substr($post->post_content, 0,150)."...",
 				  "link" => get_permalink($id),
-		//		  "picture" => "http://i.imgur.com/lHkOsiH.png",
-				  //"name" => $post->post_title,
 				  "caption" => $post->post_title,
 				  "description" => mb_substr($post->post_content, 0,300)."..."
 				  );
+			$image_url = wp_get_attachment_image_src( get_post_thumbnail_id($id), 'medium');
+			if($image_url){
+				$data = array_merge($data,array('picture'=>$image_url[0]));
+			}
 			$fbPoster->postToFacebook($data);
 		});
 }else{

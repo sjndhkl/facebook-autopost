@@ -1,5 +1,16 @@
 <?php
 
+function set_fbsettings_session($facebook_account){
+	$access_token = $facebook_account['access_token'];
+	if(empty($access_token)){
+		/** Save FB settings to Session **/
+		$_SESSION['wpsujan']['fb_settings'] = array_merge($facebook_account,
+														  array('redirect_url'=>admin_url().'options-general.php?page=wpsujan-facebook-autoposter-settings',
+														  	    'plugin_url'=>plugins_url('facebook-autopost'))
+														 );
+	}
+}
+
 function get_fbsettings_from_session(){
   if(isset($_SESSION['wpsujan']['fb_settings'])){
     $fb_settings = $_SESSION['wpsujan']['fb_settings']; 
