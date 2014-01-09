@@ -15,10 +15,20 @@ class Core_Settings{
 		add_options_page('FB Autoposter','FB Autoposter','manage_options','wpsujan-facebook-autoposter-settings',array($this,'displaySettingsPage'));
 	}
 
+	private function canIHideEditButton(){
+		$hideEditButton = false;
+		if(empty($this->settings_from_wp['wpsujan_facebook_appid'])){
+			$hideEditButton = true;
+		}
+		return $hideEditButton;
+	}
+
 	function displaySettingsPage(){
+    $hideEditButton = $this->canIHideEditButton();
+    $editButton = '';
 ?>
 	<div class="wrap">
-			<script type="text/javascript">
+		<script type="text/javascript">
 			function updateFields(a,s,t,r){
 				var appId = a || '';
 				var secretId = s || '';
@@ -29,23 +39,49 @@ class Core_Settings{
 				jQuery('#wpsujan_facebook_appaccesstoken').text(token);
 			}
 			jQuery(function(){
-					var appId = '',secretId = '',token = '';
-					jQuery('.edit_fbappid').toggle(function(){
-						appId = jQuery('#wpsujan_facebook_appid').val();
-						secretId = jQuery('#wpsujan_facebook_appsecret').val();
-						token  = jQuery('#wpsujan_facebook_appaccesstoken').text();
-						updateFields();
-						jQuery('#wpsujan_facebook_appid').focus();
-					    jQuery(this).text('Cancel');
-						return false;
-					},function(){
-						jQuery(this).text('Edit App Id');
-						updateFields(appId,secretId,token,true);
-					});
+				<?php if(!$hideEditButton): ?>
+							var appId = '',secretId = '',token = '';
+							jQuery('.edit_fbappid').toggle(function(){
+								appId = jQuery('#wpsujan_facebook_appid').val();
+								secretId = jQuery('#wpsujan_facebook_appsecret').val();
+								token  = jQuery('#wpsujan_facebook_appaccesstoken').text();
+								updateFields();
+								jQuery('#wpsujan_facebook_appid').focus();
+							    jQuery(this).text('Cancel');
+								return false;
+							},function(){
+								jQuery(this).text('Edit App Id');
+								updateFields(appId,secretId,token,true);
+							});
+				<?php 
+					$editButton ='&nbsp;<a href="#" class="edit_fbappid button button-primary">Edit</a>';
+					endif; 
+				?>
+				jQuery('#wpsujan_facebook_profileselection').on('change',function(){
+					var selectInput = jQuery(this);
+					var currentSelection = selectInput.val();
+					if(currentSelection=='page'){
+						//ajax it
+						jQuery.post('<?php echo plugins_url('facebook-autopost'); ?>/index.php',{'t':'<?php echo $this->settings_from_wp['wpsujan_facebook_appaccesstoken'] ?>'},function(response){
+							selectInput.parent().append('&nbsp;<select style="width:200px" name="page-selections" id="page-selections"></select>');
+							jQuery("#page-selections").append(response.optionsText).trigger('change');
+						})
+					}else{
+						//do some thing else
+						jQuery("#wpsujan_facebook_pagetopost").val('');
+						jQuery("#profile_selection_text").text('');
+						jQuery("#page-selections").remove();
+					}
+					return false;
+				});
 
-			});
-			</script>
-			<h2>FB Autoposter Settings <a href="#" class="edit_fbappid button button-primary">Edit</a></h2>
+				jQuery(document).on('change',"#page-selections",function(){
+					jQuery("#wpsujan_facebook_pagetopost").val(jQuery(this).val());
+					return false;
+				});
+		});
+		</script>
+			<h2>FB Autoposter Settings<?php echo $editButton; ?></h2>
 			<form method="post" action="options.php">
 				<?php settings_fields('wpsujan_fbap_options'); ?>
 				<?php do_settings_sections(__FILE__); ?>
@@ -67,8 +103,8 @@ class Core_Settings{
 		add_settings_section('wpsujan_fbap_section','',array($this,'wpsujanFbapCallback'),__FILE__);
 		add_settings_field('wpsujan_facebook_appid','Facebook App ID: ',array($this,'fbAppIdInput'),__FILE__,'wpsujan_fbap_section');
 		add_settings_field('wpsujan_facebook_appsecret','Facebook App Secret: ',array($this,'fbAppSecretInput'),__FILE__,'wpsujan_fbap_section');
-		add_settings_field('wpsujan_facebook_appaccesstoken','Access Token: ',array($this,'fbAppAccessTokenInput'),__FILE__,'wpsujan_fbap_section');
-		add_settings_field('wpsujan_facebook_username','Facebook Username/ID: ',array($this,'fbUsernameInput'),__FILE__,'wpsujan_fbap_section');
+		add_settings_field('wpsujan_facebook_appaccesstoken','Access Token: ',array($this,'fbAppAccessTokenInput'),__FILE__,'wpsujan_fbap_section');	
+		add_settings_field('wpsujan_facebook_pagetopost','Autopost In: ',array($this,'fbAppPageToPostInput'),__FILE__,'wpsujan_fbap_section');	
 		
 	}
 
@@ -97,16 +133,56 @@ class Core_Settings{
 		echo '<input name="wpsujan_fbap_options['.$name.']" type="text" id="'.$name.'" value="'.$this->settings_from_wp[$name].'" class="regular-text"'.$this->ifReadonly($name,$check_readonly).' />
 		<p class="description">'.$description.'</p>';
 	}
+	private function hiddenInput($name){
+		echo '<input name="wpsujan_fbap_options['.$name.']" type="hidden" id="'.$name.'" value="'.$this->settings_from_wp[$name].'" />';
+	}
 	private function textArea($name,$description,$cols=40,$rows=10){
 echo '<textarea rows="'.$rows.'" cols="'.$cols.'" name="wpsujan_fbap_options['.$name.']" id="'.$name.'" class="regular-text"'.$this->ifReadonly($name).'>'.$this->settings_from_wp[$name].'</textarea>
 		<p class="description">'.$description.'</p>';
 
 	}
 
-	public function fbUsernameInput(){
-		$this->textInput('wpsujan_facebook_username','Write your User id here.',false);
+	private function choiceInput($name,$default_value='',$description=''){
+		$options = array('page'=>'Page','profile'=>'Profile');
+		if(!empty($this->settings_from_wp[$name])){
+			$default_value = $this->settings_from_wp[$name];
+		}
+		$optionsToDisplay = '';
+		foreach ($options as $key => $value) {
+			if($default_value==$key){
+				$selected = ' selected="selected"';
+			}else{
+				$selected = '';
+			}
+			$optionsToDisplay .= "<option value='$key'$selected>$value</option>";
+		}
+		echo str_replace("{options}", $optionsToDisplay,'<span id="profile_selection_text">'.$description.'</span>&nbsp;<select id="'.$name.'" name="'.$name.'">
+			{options}
+</select>');
+	}
+
+	private function pageToPostInput($name){
+		$profile_selection = $this->settings_from_wp['wpsujan_facebook_pagetopost'];
+		if(!empty($profile_selection) ){
+			$segments = explode('|', $profile_selection);
+			$profile_selection = 'page';//'Page - '.;
+			$profile_selection_text  = $segments[0];
+		}else{
+			$profile_selection = 'profile';
+			$profile_selection_text = '';
+
+		}
+		$this->choiceInput('wpsujan_facebook_profileselection',$profile_selection,$profile_selection_text);
+		$this->hiddenInput($name);
+		
 	}
 	
+	public function fbAppProfileSelectionInput(){
+		$this->choiceInput('wpsujan_facebook_profileselection','profile');
+	}
+	public function fbAppPageToPostInput(){
+		$this->pageToPostInput('wpsujan_facebook_pagetopost');
+	}
 	public function fbAppIdInput(){
 		$this->textInput('wpsujan_facebook_appid','Get the App Id and Paste in here.');
 	}
