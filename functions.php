@@ -1,18 +1,41 @@
 <?php
 
+/** backward compatibility functions for php 5.2 which don't support anonym functions **/
+function wpsujan_init_settings(){
+	global $settingsObject;
+	$settingsObject->init();
+}
+function wpsujan_add_menupage(){
+	global $settingsObject;
+	$settingsObject->addMenuPage();
+}
+function wpsujan_show_notices(){
+		$html ='<div id="message" class="error"><p><strong>Facebook Autoposter</strong> Plugin Temporarily Disabled void of {causes}, Go to <a href="options-general.php?page=wpsujan-facebook-autoposter-settings">Settings Page</a> to authorize the Facebook AutoPoster and get the token.</p></div>';
+		$causes[] = 'access token';
+		echo str_replace('{causes}', join(' and ',$causes), $html);
+}
+function wpsujan_post_to_facebook($id){
+			global $fbPoster;
+			post_to_facebook($id,$fbPoster);
+}
+/** other core functions  **/
+
 function post_to_facebook($id,$fbPoster){
 	$post = get_post($id);
-			
-			$data = array( "message" => mb_substr($post->post_content, 0,150)."...",
-				  "link" => get_permalink($id),
-				  "caption" => $post->post_title,
-				  "description" => mb_substr($post->post_content, 0,300)."..."
-				  );
-			$image_url = wp_get_attachment_image_src( get_post_thumbnail_id($id), 'medium');
-			if($image_url){
-				$data = array_merge($data,array('picture'=>$image_url[0]));
-			}
-			$fbPoster->postToFacebook($data);
+	/** little sanitization **/
+	$post->post_content = strip_tags(str_replace('&nbsp;',' ',$post->post_content));
+	$post->post_content = trim($post->post_content);
+
+	$data = array( "message" => mb_substr($post->post_content, 0,150)."...",
+		  "link" => get_permalink($id),
+		  "caption" => $post->post_title,
+		  "description" => mb_substr($post->post_content, 0,300)."..."
+		  );
+	$image_url = wp_get_attachment_image_src( get_post_thumbnail_id($id), 'medium');
+	if($image_url){
+		$data = array_merge($data,array('picture'=>$image_url[0]));
+	}
+	$fbPoster->postToFacebook($data);
 }
 
 function getPagesJson($access_token){
